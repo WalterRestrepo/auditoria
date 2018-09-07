@@ -13,8 +13,13 @@ var sequelize = new Sequelize(application.database, application.username, applic
 
 // setup User model and its fields.
 // define la estructura de la tabla usuario
-var User = sequelize.define('usuario', {
+var User = sequelize.define('users', {
     username: {
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
+    },
+    email: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
@@ -25,14 +30,14 @@ var User = sequelize.define('usuario', {
     }
 }, {
         hooks: {
-            beforeCreate: (usuario) => {
+            beforeCreate: (user) => {
                 const salt = "";//bcrypt.genSaltSync();
-                usuario.clave = usuario.clave;//bcrypt.hashSync(user.password, salt);
+                user.password = user.password;//bcrypt.hashSync(user.password, salt);
             }
         },
         instanceMethods: {
-            validPassword: function (clave) {
-                return bcrypt.compareSync(clave, this.clave);
+            validPassword: function (password) {
+                return bcrypt.compareSync(password, this.password);
             }
         }
     });

@@ -10,16 +10,25 @@ var Sequelize = require('sequelize');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var User = require('./models/user');
-//var morgan = require('morgan');
-//var bodyParser = require('body-parser');
+var morgan = require('morgan');
+var bodyParser = require('body-parser');
 
-
+app.use(morgan('dev'));//Debug
 const sequelize = new Sequelize(application.database, application.username, application.password, {
     host: application.host,
     dialect: 'mysql'
 })
 
-//Configutamos la aplicacion
+
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "db_auditoria"
+});
+
+//Configuramos la aplicacion
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
     key: 'user_sid',
@@ -42,17 +51,10 @@ var sessionChecker = (req, res, next) => {
     }
 };
 
-var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "db_auditoria"
+
+app.get('/', sessionChecker, (req, res) => {
+    res.redirect('/login');
 });
-
-// app.get('/', sessionChecker, (req, res) => {
-//     res.redirect('/login');
-// });
-
 
 app.route('/signup')
     .get(sessionChecker, (req, res) => {
@@ -61,6 +63,7 @@ app.route('/signup')
     .post((req, res) => {
         User.create({
             username: req.body.username,
+            email: req.body.email,
             password: req.body.password
         })
             .then(user => {
@@ -71,6 +74,7 @@ app.route('/signup')
                 res.redirect('/signup');
             });
     });
+
 
 app.route('/login')
     .get(sessionChecker, (req, res) => {
@@ -92,15 +96,6 @@ app.route('/login')
         });
     });
 
-app.get('/logout', (req, res) => {
-    if (req.session.user && req.cookies.user_sid) {
-        res.clearCookie('user_sid');
-        res.redirect('/');
-    } else {
-        res.redirect('/login');
-    }
-});
-
 app.get('/dashboard', (req, res) => {
     if (req.session.user && req.cookies.user_sid) {
         res.sendFile(__dirname + '/public/dashboard.html');
@@ -109,14 +104,10 @@ app.get('/dashboard', (req, res) => {
     }
 });
 
-
-app.get('/', function (req, res) {
+app.get('/logout', (req, res) => {
     if (req.session.user && req.cookies.user_sid) {
-        res.sendFile(
-            path.join(
-                __dirname + '/src/views/index.html'
-            )
-        );
+        res.clearCookie('user_sid');
+        res.redirect('/');
     } else {
         res.redirect('/login');
     }
@@ -129,24 +120,6 @@ app.get('/crearEmpresa', function (req, res) {
         )
     );
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 //app.use(express.static(__dirname + ));
 //materialize
