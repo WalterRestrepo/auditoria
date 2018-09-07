@@ -17,8 +17,7 @@ app.use(morgan('dev'));//Debug
 const sequelize = new Sequelize(application.database, application.username, application.password, {
     host: application.host,
     dialect: 'mysql'
-})
-
+});
 
 var con = mysql.createConnection({
     host: "localhost",
@@ -26,7 +25,6 @@ var con = mysql.createConnection({
     password: "",
     database: "db_auditoria"
 });
-
 //Configuramos la aplicacion
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -50,12 +48,9 @@ var sessionChecker = (req, res, next) => {
         next();
     }
 };
-
-
 app.get('/', sessionChecker, (req, res) => {
     res.redirect('/login');
 });
-
 app.route('/signup')
     .get(sessionChecker, (req, res) => {
         res.sendFile(__dirname + '/public/signup.html');

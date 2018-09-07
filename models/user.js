@@ -13,7 +13,7 @@ var sequelize = new Sequelize(application.database, application.username, applic
 
 // setup User model and its fields.
 // define la estructura de la tabla usuario
-var User = sequelize.define('users', {
+var User = sequelize.define('user', {
     username: {
         type: Sequelize.STRING,
         unique: true,
@@ -31,21 +31,27 @@ var User = sequelize.define('users', {
 }, {
         hooks: {
             beforeCreate: (user) => {
-                const salt = "";//bcrypt.genSaltSync();
-                user.password = user.password;//bcrypt.hashSync(user.password, salt);
-            }
-        },
-        instanceMethods: {
-            validPassword: function (password) {
-                return bcrypt.compareSync(password, this.password);
+                const salt = "";//bcrypt.genSaltSync();// Apagamos la encriptación
+                user.password = user.password;//bcrypt.hashSync(user.password, salt);// Apagamos la encriptación
             }
         }
+        // instanceMethods: {
+        //     validPassword: function (password) {
+        //         return bcrypt.compareSync(password, this.password);
+        //     }
+        // }
     });
 
+User.prototype.validPassword = function (password) {
+    //return bcrypt.compareSync(password, this.password); // Apagamos la encriptación
+    return (password == this.password);
+};
 // create all the defined tables in the specified database.
-sequelize.sync()
-    .then(() => console.log('users table has been successfully created, if one doesn\'t exist'))
-    .catch(error => console.log('This error occured', error));
+sequelize.sync();
+
+// sequelize.sync()
+//     .then(() => console.log('users table has been successfully created, if one doesn\'t exist'))
+//     .catch(error => console.log('This error occured', error));
 
 // export User model for use in other files.
 module.exports = User;
