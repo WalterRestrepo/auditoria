@@ -14,12 +14,12 @@ var sequelize = new Sequelize(application.database, application.username, applic
 // setup User model and its fields.
 // define la estructura de la tabla usuario
 var User = sequelize.define('usuario', {
-    usuario: {
+    username: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
     },
-    clave: {
+    password: {
         type: Sequelize.STRING,
         allowNull: false
     }

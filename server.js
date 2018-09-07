@@ -60,8 +60,8 @@ app.route('/signup')
     })
     .post((req, res) => {
         User.create({
-            // usuario: req.body.username,
-            clave: req.body.password
+            username: req.body.username,
+            password: req.body.password
         })
             .then(user => {
                 req.session.user = user.dataValues;
@@ -110,7 +110,7 @@ app.get('/dashboard', (req, res) => {
 });
 
 
-app.get('/a', function (req, res) {
+app.get('/', function (req, res) {
     if (req.session.user && req.cookies.user_sid) {
         res.sendFile(
             path.join(
