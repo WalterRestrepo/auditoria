@@ -5,19 +5,21 @@ var express = require("express");
 var app = express();
 var path = require("path");
 var mysql = require("mysql");
-
 const application = require('./application.json')
 var Sequelize = require('sequelize');
-var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
-var morgan = require('morgan');
 var User = require('./models/user');
+//var morgan = require('morgan');
+//var bodyParser = require('body-parser');
+
 
 const sequelize = new Sequelize(application.database, application.username, application.password, {
     host: application.host,
     dialect: 'mysql'
 })
+
+//Configutamos la aplicacion
 app.use(cookieParser());
 app.use(session({
     key: 'user_sid',
@@ -26,15 +28,12 @@ app.use(session({
     saveUninitialized: false,
     cookie: { expires: 600000 }
 }));
-
-
 app.use((req, res, next) => {
     if (req.cookies.user_sid && !req.session.user) {
         res.clearCookie('user_sid');
     }
     next();
 });
-
 var sessionChecker = (req, res, next) => {
     if (req.session.user && req.cookies.user_sid) {
         res.redirect('/dashboard');
@@ -43,13 +42,16 @@ var sessionChecker = (req, res, next) => {
     }
 };
 
-app.use(function (req, res, next) {
-    res.status(404).send("Sorry can't find that!")
+var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "db_auditoria"
 });
 
-app.get('/', sessionChecker, (req, res) => {
-    res.redirect('/login');
-});
+// app.get('/', sessionChecker, (req, res) => {
+//     res.redirect('/login');
+// });
 
 
 app.route('/signup')
@@ -58,9 +60,8 @@ app.route('/signup')
     })
     .post((req, res) => {
         User.create({
-            username: req.body.username,
-            email: req.body.email,
-            password: req.body.password
+            // usuario: req.body.username,
+            clave: req.body.password
         })
             .then(user => {
                 req.session.user = user.dataValues;
@@ -100,10 +101,16 @@ app.get('/logout', (req, res) => {
     }
 });
 
+app.get('/dashboard', (req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+        res.sendFile(__dirname + '/public/dashboard.html');
+    } else {
+        res.redirect('/login');
+    }
+});
 
-//Usuario
 
-app.get('/', function (req, res) {
+app.get('/a', function (req, res) {
     if (req.session.user && req.cookies.user_sid) {
         res.sendFile(
             path.join(
@@ -115,15 +122,6 @@ app.get('/', function (req, res) {
     }
 });
 
-
-
-var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: "",
-    database: "db_auditoria"
-});
-
 app.get('/crearEmpresa', function (req, res) {
     res.sendFile(
         path.join(
@@ -131,6 +129,22 @@ app.get('/crearEmpresa', function (req, res) {
         )
     );
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -299,14 +313,9 @@ app.get('/usuario/save/:usuario/:clave', function (req, res) {
     });
 });
 
-
-
 app.listen(3000, function () {
-    console.log("Funciona");
+    console.log("Funciona 127.0.0.1:3000");
 });
-
-
-
 
 /*
 app.get("/", function (req, res){
