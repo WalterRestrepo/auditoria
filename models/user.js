@@ -13,17 +13,17 @@ var sequelize = new Sequelize(application.database, application.username, applic
 
 // setup User model and its fields.
 // define la estructura de la tabla usuario
-var User = sequelize.define('user', {
+var User = sequelize.define('usuario', {
     username: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
     },
-    email: {
-        type: Sequelize.STRING,
-        unique: true,
-        allowNull: false
-    },
+    // email: {
+    //     type: Sequelize.STRING,
+    //     unique: true,
+    //     allowNull: false
+    // },
     password: {
         type: Sequelize.STRING,
         allowNull: false

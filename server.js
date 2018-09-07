@@ -1,6 +1,7 @@
 //console.log("Console test");
 //codepen
 //node server.js ->Para correr
+//npm cache clean --force
 var express = require("express");
 var app = express();
 var path = require("path");
@@ -12,13 +13,11 @@ var session = require('express-session');
 var User = require('./models/user');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
-
 app.use(morgan('dev'));//Debug
 const sequelize = new Sequelize(application.database, application.username, application.password, {
     host: application.host,
     dialect: 'mysql'
 });
-
 var con = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -58,7 +57,7 @@ app.route('/signup')
     .post((req, res) => {
         User.create({
             username: req.body.username,
-            email: req.body.email,
+            // email: req.body.email,
             password: req.body.password
         })
             .then(user => {
@@ -69,8 +68,6 @@ app.route('/signup')
                 res.redirect('/signup');
             });
     });
-
-
 app.route('/login')
     .get(sessionChecker, (req, res) => {
         res.sendFile(__dirname + '/public/login.html');
@@ -78,7 +75,6 @@ app.route('/login')
     .post((req, res) => {
         var username = req.body.username,
             password = req.body.password;
-
         User.findOne({ where: { username: username } }).then(function (user) {
             if (!user) {
                 res.redirect('/login');
@@ -90,7 +86,6 @@ app.route('/login')
             }
         });
     });
-
 app.get('/dashboard', (req, res) => {
     if (req.session.user && req.cookies.user_sid) {
         res.sendFile(__dirname + '/public/dashboard.html');
@@ -98,7 +93,6 @@ app.get('/dashboard', (req, res) => {
         res.redirect('/login');
     }
 });
-
 app.get('/logout', (req, res) => {
     if (req.session.user && req.cookies.user_sid) {
         res.clearCookie('user_sid');
@@ -107,7 +101,14 @@ app.get('/logout', (req, res) => {
         res.redirect('/login');
     }
 });
-
+app.get('/norma', (req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+        res.sendFile(__dirname + '/public/norma.html');
+        res.redirect('/');
+    } else {
+        res.redirect('/login');
+    }
+});
 app.get('/crearEmpresa', function (req, res) {
     res.sendFile(
         path.join(
