@@ -13,6 +13,7 @@ var session = require('express-session');
 var User = require('./models/user');
 var morgan = require('morgan');
 var bodyParser = require('body-parser');
+
 app.use(morgan('dev'));//Debug
 const sequelize = new Sequelize(application.database, application.username, application.password, {
     host: application.host,
@@ -50,24 +51,34 @@ var sessionChecker = (req, res, next) => {
 app.get('/', sessionChecker, (req, res) => {
     res.redirect('/login');
 });
-app.route('/signup')
+app.get('/crearEmpresa', function (req, res) {
+    res.sendFile(
+        path.join(__dirname + '/public/crearEmpresa.html')
+    );
+});
+app.route('/crearEmpresaPost')
     .get(sessionChecker, (req, res) => {
-        res.sendFile(__dirname + '/public/signup.html');
+        res.sendFile(__dirname + '/public/login.html');
     })
     .post((req, res) => {
-        User.create({
-            username: req.body.username,
-            // email: req.body.email,
-            password: req.body.password
-        })
-            .then(user => {
-                req.session.user = user.dataValues;
-                res.redirect('/dashboard');
-            })
-            .catch(error => {
-                res.redirect('/signup');
-            });
+        var nombreEmpresa = req.body.nombreEmpresa,
+            nitEmpresa = req.body.nitEmpresa;
+        con.query("INSERT INTO empresa (id, nombre, nit) VALUES (?, ?, ?);", [null, nombreEmpresa, nitEmpresa], function (err, result, fields) {
+            if (err) throw err;
+            if (result.affectedRows == 1) {
+                res.sendFile(__dirname + '/public/empresaCreada.html');
+            } else {
+                res.sendFile(__dirname + '/public/empresaNoCreada.html');
+            }
+        });
     });
+app.get('/dashboard', (req, res) => {
+    if (req.session.user && req.cookies.user_sid) {
+        res.sendFile(__dirname + '/public/dashboard.html');
+    } else {
+        res.redirect('/login');
+    }
+});
 app.route('/login')
     .get(sessionChecker, (req, res) => {
         res.sendFile(__dirname + '/public/login.html');
@@ -86,13 +97,6 @@ app.route('/login')
             }
         });
     });
-app.get('/dashboard', (req, res) => {
-    if (req.session.user && req.cookies.user_sid) {
-        res.sendFile(__dirname + '/public/dashboard.html');
-    } else {
-        res.redirect('/login');
-    }
-});
 app.get('/logout', (req, res) => {
     if (req.session.user && req.cookies.user_sid) {
         res.clearCookie('user_sid');
@@ -101,27 +105,36 @@ app.get('/logout', (req, res) => {
         res.redirect('/login');
     }
 });
-app.get('/norma', (req, res) => {
-    if (req.session.user && req.cookies.user_sid) {
-        res.sendFile(__dirname + '/public/norma.html');
-        res.redirect('/');
-    } else {
-        res.redirect('/login');
-    }
-});
-app.get('/crearEmpresa', function (req, res) {
-    res.sendFile(
-        path.join(
-            __dirname + '/src/views/crearEmpresa.html'
-        )
-    );
-});
+app.route('/signup')
+    .get(sessionChecker, (req, res) => {
+        res.sendFile(__dirname + '/public/signup.html');
+    })
+    .post((req, res) => {
+        User.create({
+            username: req.body.username,
+            password: req.body.password
+        })
+            .then(user => {
+                req.session.user = user.dataValues;
+                res.redirect('/dashboard');
+            })
+            .catch(error => {
+                res.redirect('/signup');
+            });
+    });
+// app.get('/norma', (req, res) => {
+//     if (req.session.user && req.cookies.user_sid) {
+//         res.sendFile(__dirname + '/public/norma.html');
+//         res.redirect('/');
+//     } else {
+//         res.redirect('/login');
+//     }
+// });
 
 //app.use(express.static(__dirname + ));
 //materialize
 
 //NUEVO
-
 //auditoria
 app.get('/auditoria/get', function (req, res) {
     con.query("SELECT * FROM auditoria", function (err, result, fields) {
@@ -254,33 +267,33 @@ app.get('/pregunta/save/:idnorma/:pregunta', function (req, res) {
 });
 
 //usuario
-app.get('/usuario/get/:id', function (req, res) {
-    var id = req.params.id;
-    con.query("SELECT * FROM usuario WHERE id = ?", [id], function (err, result, fields) {
-        if (err) throw err;
-        res.json(result);
-    });
-});
-app.get('/usuario/login/:usuario/:clave', function (req, res) {
-    var usuario = req.params.usuario;
-    var clave = req.params.clave;
-    con.query("SELECT * FROM usuario WHERE usuario = ? AND clave = ? LIMIT 1;", [usuario, clave], function (err, result, fields) {
-        if (err) throw err;
-        res.json(result);
-    });
-});
-app.get('/usuario/save/:usuario/:clave', function (req, res) {
-    var usuario = req.params.usuario;
-    var clave = req.params.clave;
-    con.query("INSERT INTO usuario (id, usuario, clave) VALUES (?, ?, ?);", [null, usuario, clave], function (err, result, fields) {
-        if (err) throw err;
-        if (result.affectedRows >= 1) {
-            res.json({ insert: true });
-        } else {
-            res.json({ insert: false });
-        }
-    });
-});
+// app.get('/usuario/get/:id', function (req, res) {
+//     var id = req.params.id;
+//     con.query("SELECT * FROM usuario WHERE id = ?", [id], function (err, result, fields) {
+//         if (err) throw err;
+//         res.json(result);
+//     });
+// });
+// app.get('/usuario/login/:usuario/:clave', function (req, res) {
+//     var usuario = req.params.usuario;
+//     var clave = req.params.clave;
+//     con.query("SELECT * FROM usuario WHERE usuario = ? AND clave = ? LIMIT 1;", [usuario, clave], function (err, result, fields) {
+//         if (err) throw err;
+//         res.json(result);
+//     });
+// });
+// app.get('/usuario/save/:usuario/:clave', function (req, res) {
+//     var usuario = req.params.usuario;
+//     var clave = req.params.clave;
+//     con.query("INSERT INTO usuario (id, usuario, clave) VALUES (?, ?, ?);", [null, usuario, clave], function (err, result, fields) {
+//         if (err) throw err;
+//         if (result.affectedRows >= 1) {
+//             res.json({ insert: true });
+//         } else {
+//             res.json({ insert: false });
+//         }
+//     });
+// });
 
 app.listen(3000, function () {
     console.log("Funciona 127.0.0.1:3000");

@@ -37,7 +37,25 @@
     </nav>
 
     <div class="container row">
-        <h1></h1>
+        <div class="jumbotron col-sm-4 pull-center">
+            <form action="/crearEmpresaPost" method="post">
+                <div>
+                    <label>Nombre:</label>
+                    <input type="text" name="nombreEmpresa" />
+                </div>
+                <!-- <div>
+                    <label>Email:</label>
+                    <input type="text" name="email" />
+                </div> -->
+                <div>
+                    <label>NIT:</label>
+                    <input type="text" name="nitEmpresa" />
+                </div>
+                <div>
+                    <input class="btn btn-primary" type="submit" value="Crear empresa" />
+                </div>
+            </form>
+        </div>
     </div>
 </body>
 
