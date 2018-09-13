@@ -145,7 +145,7 @@ app.post('/auditoria/crear', function (req, res) {
         });
 });
 app.get('/id_usuario/get', function (req, res) {
-    res.json(1);
+    console.log(req.session.user.id);
 });
 
 app.get('/empresa/get', function (req, res) {
