@@ -35,13 +35,20 @@
             </div>
         </div>
     </nav>
-    <span id="id_auditoria"></span>
-    <div class="container row">
+    <span id="id_auditoria" hidden></span>
+    <div class="container row" id="CrearAuditoria">
         <div class="row">
             <div class="col-md-6">
                 Fecha: <input type="date" class="form-control" id="date"> Empresa: <select class="form-control" id="empresas"></select>
                 Norma: <select class="form-control" id="normas"></select>
                 <button class="btn btn-success" onclick="crearAuditoria();">Crear</button>
+            </div>
+        </div>
+    </div>
+    <div class="container row" id="PreguntarAuditoria">
+        <div class="row">
+            <div class="col-md-6">
+
             </div>
         </div>
     </div>
@@ -51,22 +58,36 @@
         fecha = $("#date").val();
         empresa = $("#empresas").val();
         norma = $("#normas").val();
-        id_usuario = 0;
+        $("#id_auditoria").html("");
         if (fecha == "" || empresa == "0" || norma == "") {
             alert("Debes seleccionar una fecha, una empresa y una norma.");
             return false;
         }
-        data = { fecha: fecha, empresa: empresa, norma: norma, id_usuario: id_usuario };
+        data = { fecha: fecha, empresa: empresa, norma: norma };
         $.post("/auditoria/crear", data, function (response) {
-            $("#id_auditoria").val(response.insertID);
             if (response.insertID > 0) {
-                alert("Insertado correctamente, su ID de examen es " + response.insertID);
-                $("#exam_id").val(response.insertID);
+                //alert("Insertado correctamente, su ID de examen es " + response.insertID);
+                $("#id_auditoria").html(response.insertID);
+                $("#id_auditoria").hide();
+                cargarPreguntasNorma();
             } else {
                 alert("Hubo un error, Oops intente mas tarde");
             }
         });
     }
+
+    function cargarPreguntasNorma() {
+        auditoriaId = $("#id_auditoria").val();
+        data = { auditoriaId: auditoriaId };
+        $.post("/auditoria/buscarPreguntas", data, function (response) {
+            if (response.insertID > 0) {
+
+            } else {
+                alert("Hubo un error, Oops intente mas tarde");
+            }
+        });
+    }
+
     $(document).ready(function () {
         $.get("/empresa/get", function (response) {
             $("#empresas").html();

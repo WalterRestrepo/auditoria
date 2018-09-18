@@ -131,9 +131,9 @@ app.get('/auditar', function (req, res) {
 });
 app.post('/auditoria/crear', function (req, res) {
     var empresa = req.body.empresa;
-    var fecha = req.body.fecha;
     var norma = req.body.norma;
-    var id_usuario = req.body.id_usuario;
+    var fecha = req.body.fecha;    
+    var id_usuario = req.session.user.id;
     con.query("INSERT INTO auditoria (id, empresa, norma, fecha, auditor) VALUES (?, ?, ?, ?, ?);",
         [null, empresa, norma, fecha, id_usuario], function (err, result, fields) {
             if (err) throw err;
@@ -146,6 +146,19 @@ app.post('/auditoria/crear', function (req, res) {
 });
 app.get('/id_usuario/get', function (req, res) {
     console.log(req.session.user.id);
+});
+
+app.get('/auditoria/buscarPreguntas', function (req, res) {
+    var idAuditoria = req.body.idAuditoria;
+    con.query("select id, texto from pregunta where norma = (SELECT norma FROM auditoria where id = ?)",
+        [null, idAuditoria], function (err, result, fields) {
+            if (err) throw err;
+            if (result.affectedRows >= 1) {
+                res.json({ insertID: result.insertId });
+            } else {
+                res.json({ insertID: -1 });
+            }
+        });
 });
 
 app.get('/empresa/get', function (req, res) {
